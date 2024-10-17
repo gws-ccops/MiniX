@@ -67,13 +67,13 @@
     </div>
 
     <script>
-        // Check the URL for "/ad"
-        const isAdPage = window.location.pathname.includes('/ad');
+        // Check the URL hash for "#ad"
+        const isAdPage = window.location.hash === '#ad';
         const adButton = document.getElementById('ad');
         const messageElement = document.querySelector('.message');
 
         if (isAdPage) {
-            // Show the ad button and hide the maintenance message
+            // Show the ad button and update the message
             adButton.style.display = 'block';
             messageElement.textContent = 'Click the button to watch an ad!';
         } else {
@@ -92,6 +92,18 @@
                 // User skipped the video or encountered an error
                 alert(JSON.stringify(result, null, 4));
             });
+        });
+
+        // Listen for hash changes to handle navigation
+        window.addEventListener('hashchange', () => {
+            // Re-check the URL hash
+            const isAdPage = window.location.hash === '#ad';
+            if (isAdPage) {
+                adButton.style.display = 'block';
+                messageElement.textContent = 'Click the button to watch an ad!';
+            } else {
+                adButton.style.display = 'none';
+            }
         });
     </script>
 </body>
