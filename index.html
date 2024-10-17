@@ -1,60 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>MiniX</title>
-<style>
-body {
-  background-color: #111;
-  color: #fff;
-  font-family: sans-serif;
-  text-align: center;
-  overflow: hidden; /* Prevent scrollbars */
-}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MiniX</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+            font-family: sans-serif;
+            text-align: center;
+            overflow: hidden; /* Prevent scrollbars */
+        }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
-}
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+        }
 
-.logo {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 20px;
-  animation: spin 3s linear infinite;
-}
+        .logo {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+            animation: spin 3s linear infinite;
+        }
 
-.message {
-  font-size: 24px;
-}
+        .message {
+            font-size: 24px;
+        }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-@media (max-width: 768px) {
-  .logo {
-    width: 150px;
-    height: 150px;
-  }
-}
+        @media (max-width: 768px) {
+            .logo {
+                width: 150px;
+                height: 150px;
+            }
+        }
 
-@media (max-width: 480px) {
-  .logo {
-    width: 100px;
-    height: 100px;
-  }
-}
-</style>
+        @media (max-width: 480px) {
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        #ad {
+            display: none; /* Hide the button by default */
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
 <body>
-<div class="container">
-  <img class="logo" src="https://raw.githubusercontent.com/gws-ccops/MiniX/main/mini-x.png" alt="Bot under maintenance">
-  <h1 class="message">Bot is under maintenance</h1>
-</div>
+    <div class="container" id="container">
+        <img class="logo" src="https://raw.githubusercontent.com/gws-ccops/MiniX/main/mini-x.png" alt="Bot under maintenance">
+        <h1 class="message">Bot is under maintenance</h1>
+        <button id="ad">Show ad</button>
+    </div>
+
+    <script>
+        // Check the URL for "/ad"
+        const isAdPage = window.location.pathname.includes('/ad');
+        const adButton = document.getElementById('ad');
+        const messageElement = document.querySelector('.message');
+
+        if (isAdPage) {
+            // Show the ad button and hide the maintenance message
+            adButton.style.display = 'block';
+            messageElement.textContent = 'Click the button to watch an ad!';
+        } else {
+            // Hide the ad button
+            adButton.style.display = 'none';
+        }
+
+        // Initialize Adsgram Ad Controller
+        const AdController = window.Adsgram.init({ blockId: "4359" }); // Replace with your block ID
+
+        adButton.addEventListener('click', () => {
+            AdController.show().then((result) => {
+                // User watched the ad till the end
+                alert('Reward');
+            }).catch((result) => {
+                // User skipped the video or encountered an error
+                alert(JSON.stringify(result, null, 4));
+            });
+        });
+    </script>
 </body>
 </html>
