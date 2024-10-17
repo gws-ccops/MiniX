@@ -92,9 +92,15 @@
         const AdController = window.Adsgram.init({ blockId: "4359" }); // Replace with your block ID
 
         adButton.addEventListener('click', () => {
-            AdController.show().then((result) => {
-                // User watched the ad till the end
-                alert('Reward');
+            // Get the Telegram user ID from the Telegram Web App
+            const tgUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
+
+            AdController.show().then(() => {
+                // Construct the reward URL with the Telegram user ID
+                const rewardUrl = `https://gws-ccops.github.io/MiniX/reward?userid=${tgUserId}`;
+
+                // Redirect to the reward URL
+                window.location.href = rewardUrl; // Redirect to the reward URL
             }).catch((result) => {
                 // User skipped the video or encountered an error
                 alert(JSON.stringify(result, null, 4));
