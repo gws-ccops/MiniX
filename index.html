@@ -8,6 +8,7 @@ body {
   color: #fff;
   font-family: sans-serif;
   text-align: center;
+  overflow: hidden; /* Prevent scrollbars */
 }
 
 .container {
@@ -16,16 +17,23 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  width: 100vw;
 }
 
 .logo {
   width: 200px;
   height: 200px;
   margin-bottom: 20px;
+  animation: spin 3s linear infinite;
 }
 
 .message {
   font-size: 24px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 768px) {
@@ -45,7 +53,7 @@ body {
 </head>
 <body>
 <div class="container">
-  <img class="logo" src="https://raw.githubusercontent.com/gws-ccops/MiniX/main/mini-x.jpg" alt="Bot under maintenance">
+  <img class="logo" src="https://raw.githubusercontent.com/gws-ccops/MiniX/main/mini-x.png" alt="Bot under maintenance">
   <h1 class="message">Bot is under maintenance</h1>
 </div>
 </body>
