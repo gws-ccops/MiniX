@@ -1,111 +1,351 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MiniX</title>
-    <style>
-        body {
-            background-color: #111;
-            color: #fff;
-            font-family: sans-serif;
-            text-align: center;
-            overflow: hidden; /* Prevent scrollbars */
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        .logo {
-            width: 200px;
-            height: 200px;
-            margin-bottom: 20px;
-            animation: spin 3s linear infinite;
-        }
-
-        .message {
-            font-size: 24px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .logo {
-                width: 150px;
-                height: 150px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo {
-                width: 100px;
-                height: 100px;
-            }
-        }
-
-        #ad {
-            display: none; /* Hide the button by default */
-        }
-    </style>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-</head>
-<body>
-    <div class="container" id="container">
-        <img class="logo" src="https://raw.githubusercontent.com/gws-ccops/MiniX/main/mini-x.png" alt="Bot under maintenance">
-        <h1 class="message">Bot is under maintenance</h1>
-        <button id="ad">Show ad</button>
-    </div>
-
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script src="https://unpkg.com/unlazy@0.11.3/dist/unlazy.with-hashing.iife.js" defer init></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
-        // Check the URL hash for "#ad"
-        const adButton = document.getElementById('ad');
-        const messageElement = document.querySelector('.message');
+  // Firebase configuration for your app
+  const firebaseConfig = {
+    apiKey: "AIzaSyCswSPb2rBnpT3ZjWnWt-Lp4L8nNWTw5wo",
+    authDomain: "minix-cb7c2.firebaseapp.com",
+    databaseURL: "https://minix-cb7c2-default-rtdb.firebaseio.com",
+    projectId: "minix-cb7c2",
+    storageBucket: "minix-cb7c2.appspot.com",
+    messagingSenderId: "570763032796",
+    appId: "1:570763032796:web:718b3e00a3ff71e7be5c19",
+    measurementId: "G-M7Z120N0TP"
+  };
 
-        function updateAdButtonVisibility() {
-            const isAdPage = window.location.hash === '#ad';
-            if (isAdPage) {
-                adButton.style.display = 'block';
-                messageElement.textContent = 'Click the button to watch an ad!';
-            } else {
-                adButton.style.display = 'none';
-                messageElement.textContent = 'Bot is under maintenance';
-            }
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Initial variables
+  let bullsCount = 0;
+  let watchAdsCount = 0;
+  const maxWatchAdsClicks = 10;
+  const dailyTaskReward = 500;
+  let dailyTaskClaimed = false;
+  let partners = {
+    goats: false,
+    memeland: false,
+    wcoin: false,
+    rats: false,
+    binance: false,
+    iamdog: false,
+    timefarm: false
+  };
+
+  // Fetch data from Firebase on page load
+  db.ref('tasks').once('value').then((snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+
+      // Load data from Firebase
+      bullsCount = data.bullsCount || 0;
+      watchAdsCount = data.watchAdsCount || 0;
+      dailyTaskClaimed = data.dailyTaskClaimed || false;
+      partners = data.partners || partners;
+
+      // Update the UI with retrieved values
+      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
+      document.getElementById('watch-ads-count').innerText = `${watchAdsCount}/10`;
+
+      // If daily task is claimed, disable the button
+      if (dailyTaskClaimed) {
+        const dailyBtn = document.getElementById('daily-btn');
+        dailyBtn.disabled = true;
+        dailyBtn.innerText = 'Done ✓';
+        dailyBtn.classList.add('bg-green-500');
+      }
+
+      // Loop through partners and disable buttons if tasks are already done
+      for (const partner in partners) {
+        if (partners[partner]) {
+          const partnerBtn = document.getElementById(`${partner}-btn`);
+          partnerBtn.disabled = true;
+          partnerBtn.innerText = 'Done ✓';
+          partnerBtn.classList.add('bg-green-500');
         }
+      }
+    }
+  });
 
-        // Run the function once on page load
-        updateAdButtonVisibility();
+  // Function to update the Firebase database
+  function updateDatabase() {
+    db.ref('tasks').set({
+      bullsCount: bullsCount,
+      watchAdsCount: watchAdsCount,
+      dailyTaskClaimed: dailyTaskClaimed,
+      partners: partners
+    });
+  }
 
-        // Listen for hash changes to handle navigation
-        window.addEventListener('hashchange', updateAdButtonVisibility);
+  // Function to increase bulls from watching ads
+  function increaseBulls() {
+    if (watchAdsCount < maxWatchAdsClicks) {
+      bullsCount += 500;
+      watchAdsCount++;
+      document.getElementById('watch-ads-count').innerText = `${watchAdsCount}/10 ✓`;
+      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
 
-        // Initialize Adsgram Ad Controller
-        const AdController = window.Adsgram.init({ blockId: "4359" }); // Replace with your block ID
+      // Update Firebase after increasing bulls
+      updateDatabase();
 
-        adButton.addEventListener('click', () => {
-            // Get the Telegram user ID from the Telegram Web App
-            const tgUserId = "1298878071";
+      // Disable the button after reaching the max ads limit
+      if (watchAdsCount >= maxWatchAdsClicks) {
+        const watchAdsBtn = document.getElementById('watch-ads-btn');
+        watchAdsBtn.disabled = true;
+        watchAdsBtn.innerText = 'Done ✓';
+        watchAdsBtn.classList.add('bg-green-500');
+      }
+    }
+  }
 
-            AdController.show().then(() => {
-                // Construct the reward URL with the Telegram user ID
-                const rewardUrl = `https://gws-ccops.github.io/MiniX/reward?userid=${tgUserId}`;
+  // Function to claim the daily task reward
+  function claimDaily() {
+    if (!dailyTaskClaimed) {
+      bullsCount += dailyTaskReward;
+      dailyTaskClaimed = true;
 
-                // Redirect to the reward URL
-                window.location.href = rewardUrl; // Redirect to the reward URL
-            }).catch((result) => {
-                // User skipped the video or encountered an error
-                alert(JSON.stringify(result, null, 4));
-            });
-        });
-    </script>
+      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
+      const dailyBtn = document.getElementById('daily-btn');
+      dailyBtn.disabled = true;
+      dailyBtn.innerText = 'Done ✓';
+      dailyBtn.classList.add('bg-green-500');
+
+      // Update Firebase after claiming the daily reward
+      updateDatabase();
+    }
+  }
+
+  // Function to claim partner rewards
+  function increasePartnerBulls(partner) {
+    if (!partners[partner]) {
+      bullsCount += 500;
+      partners[partner] = true;
+
+      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
+      const partnerBtn = document.getElementById(`${partner}-btn`);
+      partnerBtn.disabled = true;
+      partnerBtn.innerText = 'Done ✓';
+      partnerBtn.classList.add('bg-green-500');
+
+      // Update Firebase after claiming partner rewards
+      updateDatabase();
+    }
+  }
+</script>
+
+    <script type="text/javascript">
+			window.tailwind.config = {
+				darkMode: ['class'],
+				theme: {
+					extend: {
+						colors: {
+							border: 'hsl(var(--border))',
+							input: 'hsl(var(--input))',
+							ring: 'hsl(var(--ring))',
+							background: 'hsl(var(--background))',
+							foreground: 'hsl(var(--foreground))',
+							primary: {
+								DEFAULT: 'hsl(var(--primary))',
+								foreground: 'hsl(var(--primary-foreground))'
+							},
+							secondary: {
+								DEFAULT: 'hsl(var(--secondary))',
+								foreground: 'hsl(var(--secondary-foreground))'
+							},
+							destructive: {
+								DEFAULT: 'hsl(var(--destructive))',
+								foreground: 'hsl(var(--destructive-foreground))'
+							},
+							muted: {
+								DEFAULT: 'hsl(var(--muted))',
+								foreground: 'hsl(var(--muted-foreground))'
+							},
+							accent: {
+								DEFAULT: 'hsl(var(--accent))',
+								foreground: 'hsl(var(--accent-foreground))'
+							},
+							popover: {
+								DEFAULT: 'hsl(var(--popover))',
+								foreground: 'hsl(var(--popover-foreground))'
+							},
+							card: {
+								DEFAULT: 'hsl(var(--card))',
+								foreground: 'hsl(var(--card-foreground))'
+							},
+						},
+					}
+				}
+			}
+		</script>
+		<style type="text/tailwindcss">
+			@layer base {
+				:root {
+					--background: 0 0% 100%;
+--foreground: 240 10% 3.9%;
+--card: 0 0% 100%;
+--card-foreground: 240 10% 3.9%;
+--popover: 0 0% 100%;
+--popover-foreground: 240 10% 3.9%;
+--primary: 240 5.9% 10%;
+--primary-foreground: 0 0% 98%;
+--secondary: 240 4.8% 95.9%;
+--secondary-foreground: 240 5.9% 10%;
+--muted: 240 4.8% 95.9%;
+--muted-foreground: 240 3.8% 46.1%;
+--accent: 240 4.8% 95.9%;
+--accent-foreground: 240 5.9% 10%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 0 0% 98%;
+--border: 240 5.9% 90%;
+--input: 240 5.9% 90%;
+--ring: 240 5.9% 10%;
+--radius: 0.5rem;
+				}
+				.dark {
+					--background: 240 10% 3.9%;
+--foreground: 0 0% 98%;
+--card: 240 10% 3.9%;
+--card-foreground: 0 0% 98%;
+--popover: 240 10% 3.9%;
+--popover-foreground: 0 0% 98%;
+--primary: 0 0% 98%;
+--primary-foreground: 240 5.9% 10%;
+--secondary: 240 3.7% 15.9%;
+--secondary-foreground: 0 0% 98%;
+--muted: 240 3.7% 15.9%;
+--muted-foreground: 240 5% 64.9%;
+--accent: 240 3.7% 15.9%;
+--accent-foreground: 0 0% 98%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--border: 240 3.7% 15.9%;
+--input: 240 3.7% 15.9%;
+--ring: 240 4.9% 83.9%;
+				}
+			}
+		</style>
+  </head>
+  <body>
+    <div class="bg-background text-foreground min-h-screen flex flex-col">
+      <header class="flex items-center justify-between p-4 bg-card rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold text-primary">MiniX 🚀</h1>
+        <div class="relative">
+          <img aria-hidden="true" alt="bull-icon" src="https://openui.fly.dev/openui/24x24.svg?text=🚀" class="w-10 h-10" />
+        </div>
+      </header>
+      <main class="flex-grow flex flex-col items-center justify-center">
+        <div id="bulls-count" class="text-5xl font-extrabold text-primary mt-4">0 MiniX</div>
+        <section class="mt-8 w-full max-w-md">
+          <h2 class="text-xl font-semibold mb-4 text-secondary">Tasks</h2>
+          <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+            <div class="flex justify-between items-center">
+              <span class="text-lg">Watch Ads</span>
+              <span id="watch-ads-count" class="text-muted-foreground">0/10</span>
+              <button id="watch-ads-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increaseBulls()">Open</button>
+            </div>
+            <span class="text-muted-foreground">+500 MiniX</span>
+          </div>
+          <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+            <div class="flex justify-between items-center">
+              <span class="text-lg">Daily Reward</span>
+              <button id="daily-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="claimDaily()">Open</button>
+            </div>
+            <span class="text-muted-foreground">+500 MiniX</span>
+          </div>
+        </section>
+        <section class="mt-8 w-full max-w-md">
+          <h2 class="text-xl font-semibold mb-4 text-secondary">Partners</h2>
+          <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play Goats Bot</span>
+          <a href="https://t.me/realgoats_bot/run?startapp=bad6e5b7-dfaf-4703-91e1-4e161805497d" target="_blank" rel="noopener noreferrer" id="goats-bot-link">
+            <button id="goats-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('goats')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play Memeland Bot</span>
+          <a href="https://t.me/metaland_bot/click?startapp=1298878071" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
+            <button id="memeland-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('memeland')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play W-coin Bot</span>
+          <a href="https://t.me/wcoin_tapbot?start=MTI5ODg3ODA3MQ==" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
+            <button id="wcoin-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('wcoin')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play Rats Kingdom Bot</span>
+          <a href="http://t.me/RatsKingdom_Bot/join?startapp=66eb7219216f70a5c9f52f6c" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
+            <button id="rats-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('rats')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play Binance Bot</span>
+          <a href="https://t.me/Binance_Moonbix_bot/start?startapp=ref_1298878071&startApp=ref_1298878071" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
+            <button id="binance-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('binance')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play IAMDOG Bot</span>
+          <a href="https://t.me/IAMDOG_bot?start=CZGAUU" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
+            <button id="iamdog-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('iamdog')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
+        <div class="flex justify-between items-center">
+          <span class="text-lg">Play Time Farm Bot</span>
+          <a href="https://t.me/TimeFarmCryptoBot?start=19Lv0sUGq7nLU9mdv" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
+            <button id="timefarm-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('timefarm')">Play</button>
+          </a>
+        </div>
+        <span class="text-muted-foreground">+500 MiniX</span>
+      </div>
+        </section>
+      </main>
+      <footer class="flex justify-around p-4 bg-card rounded-lg shadow-lg">
+  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Navigation to the Home page.')">
+    <i class="fas fa-th-large text-primary"></i>
+    <span class="text-card-foreground">Home</span>
+  </button>
+  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Leaderboard feature coming soon!')">
+    <i class="fas fa-star text-primary"></i>
+    <span class="text-card-foreground">Leaderboard</span>
+  </button>
+  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Your referrals will be shown here.')">
+    <i class="fas fa-user-plus text-primary"></i>
+    <span class="text-card-foreground">Friends</span>
+  </button>
+  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Airdrop feature coming soon!')">
+    <i class="fas fa-gift text-primary"></i>
+    <span class="text-card-foreground">Airdrop</span>
+  </button>
+</footer>
+</div>
 </body>
 </html>
+ 
