@@ -1,351 +1,79 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <script src="https://unpkg.com/unlazy@0.11.3/dist/unlazy.with-hashing.iife.js" defer init></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>Fetch Token Example</title>
+</head>
+<body>
+    <h1>Fetch Token Example</h1>
+    <button id="fetchTokenButton">Fetch Token</button>
+    <p id="tokenResult"></p>
+
     <script>
-  // Firebase configuration for your app
-  const firebaseConfig = {
-    apiKey: "AIzaSyCswSPb2rBnpT3ZjWnWt-Lp4L8nNWTw5wo",
-    authDomain: "minix-cb7c2.firebaseapp.com",
-    databaseURL: "https://minix-cb7c2-default-rtdb.firebaseio.com",
-    projectId: "minix-cb7c2",
-    storageBucket: "minix-cb7c2.appspot.com",
-    messagingSenderId: "570763032796",
-    appId: "1:570763032796:web:718b3e00a3ff71e7be5c19",
-    measurementId: "G-M7Z120N0TP"
-  };
+        function getRandomUserAgent() {
+            const userAgents = [
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15",
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+                "Mozilla/5.0 (Linux; Android 10; SM-G965F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36",
+                "Mozilla/5.0 (Linux; Android 11; SM-G998U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Mobile Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gecko/20100101 Firefox/89.0",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36 Edg/92.0.902.55",
+                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0",
+                "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:54.0) Gecko/20100101 Firefox/54.0",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
+            ];
 
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // Initial variables
-  let bullsCount = 0;
-  let watchAdsCount = 0;
-  const maxWatchAdsClicks = 10;
-  const dailyTaskReward = 500;
-  let dailyTaskClaimed = false;
-  let partners = {
-    goats: false,
-    memeland: false,
-    wcoin: false,
-    rats: false,
-    binance: false,
-    iamdog: false,
-    timefarm: false
-  };
-
-  // Fetch data from Firebase on page load
-  db.ref('tasks').once('value').then((snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-
-      // Load data from Firebase
-      bullsCount = data.bullsCount || 0;
-      watchAdsCount = data.watchAdsCount || 0;
-      dailyTaskClaimed = data.dailyTaskClaimed || false;
-      partners = data.partners || partners;
-
-      // Update the UI with retrieved values
-      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
-      document.getElementById('watch-ads-count').innerText = `${watchAdsCount}/10`;
-
-      // If daily task is claimed, disable the button
-      if (dailyTaskClaimed) {
-        const dailyBtn = document.getElementById('daily-btn');
-        dailyBtn.disabled = true;
-        dailyBtn.innerText = 'Done ✓';
-        dailyBtn.classList.add('bg-green-500');
-      }
-
-      // Loop through partners and disable buttons if tasks are already done
-      for (const partner in partners) {
-        if (partners[partner]) {
-          const partnerBtn = document.getElementById(`${partner}-btn`);
-          partnerBtn.disabled = true;
-          partnerBtn.innerText = 'Done ✓';
-          partnerBtn.classList.add('bg-green-500');
+            return userAgents[Math.floor(Math.random() * userAgents.length)];
         }
-      }
-    }
-  });
 
-  // Function to update the Firebase database
-  function updateDatabase() {
-    db.ref('tasks').set({
-      bullsCount: bullsCount,
-      watchAdsCount: watchAdsCount,
-      dailyTaskClaimed: dailyTaskClaimed,
-      partners: partners
-    });
-  }
+        async function fetchToken() {
+            const userAgent = getRandomUserAgent();
+            const url = "https://www.cpmrevenuegate.com/fzuw81rt";
+            const params = new URLSearchParams({
+                key: "930de48ba2d57c6235b04d5dd9237fda"
+            });
 
-  // Function to increase bulls from watching ads
-  function increaseBulls() {
-    if (watchAdsCount < maxWatchAdsClicks) {
-      bullsCount += 500;
-      watchAdsCount++;
-      document.getElementById('watch-ads-count').innerText = `${watchAdsCount}/10 ✓`;
-      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
+            const headers = {
+                'User-Agent': userAgent,
+                'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                'Accept-Encoding': "gzip, deflate",
+                'Upgrade-Insecure-Requests': "1",
+                'Sec-Fetch-Site': "none",
+                'Sec-Fetch-Mode': "navigate",
+                'Sec-Fetch-User': "?1",
+                'Sec-Fetch-Dest': "document",
+                'Accept-Language': "en-US,en;q=0.9"
+            };
 
-      // Update Firebase after increasing bulls
-      updateDatabase();
+            try {
+                const response = await fetch(url + '?' + params.toString(), {
+                    method: 'GET',
+                    headers: headers,
+                });
 
-      // Disable the button after reaching the max ads limit
-      if (watchAdsCount >= maxWatchAdsClicks) {
-        const watchAdsBtn = document.getElementById('watch-ads-btn');
-        watchAdsBtn.disabled = true;
-        watchAdsBtn.innerText = 'Done ✓';
-        watchAdsBtn.classList.add('bg-green-500');
-      }
-    }
-  }
+                if (response.ok) {
+                    const responseText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(responseText, 'text/html');
+                    const tokenInput = doc.querySelector('input[name="token"]');
+                    const token = tokenInput ? tokenInput.value : null;
 
-  // Function to claim the daily task reward
-  function claimDaily() {
-    if (!dailyTaskClaimed) {
-      bullsCount += dailyTaskReward;
-      dailyTaskClaimed = true;
+                    // Display token in the paragraph element
+                    document.getElementById('tokenResult').textContent = token ? `Token: ${token}` : 'Token not found';
+                } else {
+                    console.error('Error fetching the token:', response.status);
+                    document.getElementById('tokenResult').textContent = 'Error fetching token';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('tokenResult').textContent = 'Fetch error';
+            }
+        }
 
-      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
-      const dailyBtn = document.getElementById('daily-btn');
-      dailyBtn.disabled = true;
-      dailyBtn.innerText = 'Done ✓';
-      dailyBtn.classList.add('bg-green-500');
-
-      // Update Firebase after claiming the daily reward
-      updateDatabase();
-    }
-  }
-
-  // Function to claim partner rewards
-  function increasePartnerBulls(partner) {
-    if (!partners[partner]) {
-      bullsCount += 500;
-      partners[partner] = true;
-
-      document.getElementById('bulls-count').innerText = `${bullsCount} MiniX`;
-      const partnerBtn = document.getElementById(`${partner}-btn`);
-      partnerBtn.disabled = true;
-      partnerBtn.innerText = 'Done ✓';
-      partnerBtn.classList.add('bg-green-500');
-
-      // Update Firebase after claiming partner rewards
-      updateDatabase();
-    }
-  }
-</script>
-
-    <script type="text/javascript">
-			window.tailwind.config = {
-				darkMode: ['class'],
-				theme: {
-					extend: {
-						colors: {
-							border: 'hsl(var(--border))',
-							input: 'hsl(var(--input))',
-							ring: 'hsl(var(--ring))',
-							background: 'hsl(var(--background))',
-							foreground: 'hsl(var(--foreground))',
-							primary: {
-								DEFAULT: 'hsl(var(--primary))',
-								foreground: 'hsl(var(--primary-foreground))'
-							},
-							secondary: {
-								DEFAULT: 'hsl(var(--secondary))',
-								foreground: 'hsl(var(--secondary-foreground))'
-							},
-							destructive: {
-								DEFAULT: 'hsl(var(--destructive))',
-								foreground: 'hsl(var(--destructive-foreground))'
-							},
-							muted: {
-								DEFAULT: 'hsl(var(--muted))',
-								foreground: 'hsl(var(--muted-foreground))'
-							},
-							accent: {
-								DEFAULT: 'hsl(var(--accent))',
-								foreground: 'hsl(var(--accent-foreground))'
-							},
-							popover: {
-								DEFAULT: 'hsl(var(--popover))',
-								foreground: 'hsl(var(--popover-foreground))'
-							},
-							card: {
-								DEFAULT: 'hsl(var(--card))',
-								foreground: 'hsl(var(--card-foreground))'
-							},
-						},
-					}
-				}
-			}
-		</script>
-		<style type="text/tailwindcss">
-			@layer base {
-				:root {
-					--background: 0 0% 100%;
---foreground: 240 10% 3.9%;
---card: 0 0% 100%;
---card-foreground: 240 10% 3.9%;
---popover: 0 0% 100%;
---popover-foreground: 240 10% 3.9%;
---primary: 240 5.9% 10%;
---primary-foreground: 0 0% 98%;
---secondary: 240 4.8% 95.9%;
---secondary-foreground: 240 5.9% 10%;
---muted: 240 4.8% 95.9%;
---muted-foreground: 240 3.8% 46.1%;
---accent: 240 4.8% 95.9%;
---accent-foreground: 240 5.9% 10%;
---destructive: 0 84.2% 60.2%;
---destructive-foreground: 0 0% 98%;
---border: 240 5.9% 90%;
---input: 240 5.9% 90%;
---ring: 240 5.9% 10%;
---radius: 0.5rem;
-				}
-				.dark {
-					--background: 240 10% 3.9%;
---foreground: 0 0% 98%;
---card: 240 10% 3.9%;
---card-foreground: 0 0% 98%;
---popover: 240 10% 3.9%;
---popover-foreground: 0 0% 98%;
---primary: 0 0% 98%;
---primary-foreground: 240 5.9% 10%;
---secondary: 240 3.7% 15.9%;
---secondary-foreground: 0 0% 98%;
---muted: 240 3.7% 15.9%;
---muted-foreground: 240 5% 64.9%;
---accent: 240 3.7% 15.9%;
---accent-foreground: 0 0% 98%;
---destructive: 0 62.8% 30.6%;
---destructive-foreground: 0 0% 98%;
---border: 240 3.7% 15.9%;
---input: 240 3.7% 15.9%;
---ring: 240 4.9% 83.9%;
-				}
-			}
-		</style>
-  </head>
-  <body>
-    <div class="bg-background text-foreground min-h-screen flex flex-col">
-      <header class="flex items-center justify-between p-4 bg-card rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-primary">MiniX 🚀</h1>
-        <div class="relative">
-          <img aria-hidden="true" alt="bull-icon" src="https://openui.fly.dev/openui/24x24.svg?text=🚀" class="w-10 h-10" />
-        </div>
-      </header>
-      <main class="flex-grow flex flex-col items-center justify-center">
-        <div id="bulls-count" class="text-5xl font-extrabold text-primary mt-4">0 MiniX</div>
-        <section class="mt-8 w-full max-w-md">
-          <h2 class="text-xl font-semibold mb-4 text-secondary">Tasks</h2>
-          <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-            <div class="flex justify-between items-center">
-              <span class="text-lg">Watch Ads</span>
-              <span id="watch-ads-count" class="text-muted-foreground">0/10</span>
-              <button id="watch-ads-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increaseBulls()">Open</button>
-            </div>
-            <span class="text-muted-foreground">+500 MiniX</span>
-          </div>
-          <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-            <div class="flex justify-between items-center">
-              <span class="text-lg">Daily Reward</span>
-              <button id="daily-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="claimDaily()">Open</button>
-            </div>
-            <span class="text-muted-foreground">+500 MiniX</span>
-          </div>
-        </section>
-        <section class="mt-8 w-full max-w-md">
-          <h2 class="text-xl font-semibold mb-4 text-secondary">Partners</h2>
-          <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play Goats Bot</span>
-          <a href="https://t.me/realgoats_bot/run?startapp=bad6e5b7-dfaf-4703-91e1-4e161805497d" target="_blank" rel="noopener noreferrer" id="goats-bot-link">
-            <button id="goats-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('goats')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play Memeland Bot</span>
-          <a href="https://t.me/metaland_bot/click?startapp=1298878071" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
-            <button id="memeland-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('memeland')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play W-coin Bot</span>
-          <a href="https://t.me/wcoin_tapbot?start=MTI5ODg3ODA3MQ==" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
-            <button id="wcoin-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('wcoin')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play Rats Kingdom Bot</span>
-          <a href="http://t.me/RatsKingdom_Bot/join?startapp=66eb7219216f70a5c9f52f6c" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
-            <button id="rats-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('rats')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play Binance Bot</span>
-          <a href="https://t.me/Binance_Moonbix_bot/start?startapp=ref_1298878071&startApp=ref_1298878071" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
-            <button id="binance-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('binance')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play IAMDOG Bot</span>
-          <a href="https://t.me/IAMDOG_bot?start=CZGAUU" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
-            <button id="iamdog-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('iamdog')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-      <div class="bg-card p-4 rounded-lg shadow-md mb-4 transition-transform transform hover:scale-105">
-        <div class="flex justify-between items-center">
-          <span class="text-lg">Play Time Farm Bot</span>
-          <a href="https://t.me/TimeFarmCryptoBot?start=19Lv0sUGq7nLU9mdv" target="_blank" rel="noopener noreferrer" id="memeland-bot-link">
-            <button id="timefarm-btn" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow hover:bg-primary/80 transition" onclick="increasePartnerBulls('timefarm')">Play</button>
-          </a>
-        </div>
-        <span class="text-muted-foreground">+500 MiniX</span>
-      </div>
-        </section>
-      </main>
-      <footer class="flex justify-around p-4 bg-card rounded-lg shadow-lg">
-  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Navigation to the Home page.')">
-    <i class="fas fa-th-large text-primary"></i>
-    <span class="text-card-foreground">Home</span>
-  </button>
-  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Leaderboard feature coming soon!')">
-    <i class="fas fa-star text-primary"></i>
-    <span class="text-card-foreground">Leaderboard</span>
-  </button>
-  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Your referrals will be shown here.')">
-    <i class="fas fa-user-plus text-primary"></i>
-    <span class="text-card-foreground">Friends</span>
-  </button>
-  <button class="flex flex-col items-center hover:text-primary transition" onclick="alert('Airdrop feature coming soon!')">
-    <i class="fas fa-gift text-primary"></i>
-    <span class="text-card-foreground">Airdrop</span>
-  </button>
-</footer>
-</div>
+        // Attach event listener to the button
+        document.getElementById('fetchTokenButton').addEventListener('click', fetchToken);
+    </script>
 </body>
 </html>
- 
